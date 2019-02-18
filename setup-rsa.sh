@@ -42,8 +42,12 @@ else
 	done
 fi
 
-KEY_DIR=$:"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-bot "The best I can make out, your email address is $COL_YELLOWasd$COL_RESET"
+DEFAULT_KEY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+read -r -p "Where would you like to secretly store keys? [default=${DEFAULT_KEY_DIR}]" KEY_DIR
+if [[ ! $KEY_DIR ]];then
+	KEY_DIR=$DEFAULT_KEY_DIR
+fi
+mkdir -p "${KEY_DIR}/rsa";ok
 
 bot "What would you like to do?"
 read -r -p "(N)ew SSH key, (I)mport SSH key, (U)nload all keys or (Q)uit  [default=I] " response

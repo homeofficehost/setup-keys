@@ -1,43 +1,12 @@
 #!/usr/bin/env bash
 
 ###########################
-# This script setups ssh keys on your system using symbolic links to a pendrive
+# This script setups ssh keys on your system using symbolic links
 # @author Thomas Letsch Groch
 ###########################
 
-# some colorized echo helpers
-ESC_SEQ="\x1b["
-COL_RESET=$ESC_SEQ"39;49;00m"
-COL_RED=$ESC_SEQ"31;01m"
-COL_GREEN=$ESC_SEQ"32;01m"
-COL_YELLOW=$ESC_SEQ"33;01m"
-COL_BLUE=$ESC_SEQ"34;01m"
-COL_MAGENTA=$ESC_SEQ"35;01m"
-COL_CYAN=$ESC_SEQ"36;01m"
-
-function ok() {
-    echo -e "$COL_GREEN[ok]$COL_RESET "$1
-}
-
-function bot() {
-    echo -e "\n$COL_GREEN\[._.]/$COL_RESET - "$1
-}
-
-function running() {
-    echo -en "$COL_YELLOW ⇒ $COL_RESET"$1": "
-}
-
-function action() {
-    echo -e "\n$COL_YELLOW[action]:$COL_RESET\n ⇒ $1..."
-}
-
-function warn() {
-    echo -e "$COL_YELLOW[warning]$COL_RESET "$1
-}
-
-function error() {
-    echo -e "$COL_RED[error]$COL_RESET "$1
-}
+# include library helpers for colorized
+source ./lib/echos.sh
 
 # Check for required installed software
 SSH_AGENT_BIN=`which ssh-agent`
@@ -54,7 +23,7 @@ else
 fi
 
 # check if ssh-agent is already running
-if ps -p $SSH_AGENT_PID > /dev/null
+if [ ! $SSH_AGENT_PID ]
 then
 	ok "ssh-agent is running"
 else
@@ -73,7 +42,7 @@ else
 	done
 fi
 
-PENDRIVE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KEY_DIR=$:"$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 bot "The best I can make out, your email address is $COL_YELLOWasd$COL_RESET"
 
 bot "What would you like to do?"
@@ -112,7 +81,7 @@ if [[ $response =~ (n|N) ]];then
 		key_comment="${key_name} ${key_comment}"
 	fi
 	
-	OUTPUT_KEY="${PENDRIVE}/rsa/${key_name}"
+	OUTPUT_KEY="${KEY_DIR}/rsa/${key_name}"
 	OUTPUT_PASSPHRASE_FILE="${OUTPUT_KEY}.passphrase"
 
 	action "Saving passphrase"
@@ -141,7 +110,7 @@ else
 	bot "Which key should I be importing?"
 	while IFS= read -r -d $'\0' f; do
 	  options[i++]="$f"
-	done < <(find $PENDRIVE/rsa/ -maxdepth 1 -type f -name "*.pub" -print0 )
+	done < <(find $KEY_DIR/rsa/ -maxdepth 1 -type f -name "*.pub" -print0 )
 
 	select opt in "${options[@]}" "Quit"; do
 	    case $opt in
@@ -150,17 +119,17 @@ else
 	            private_filename="${pub_filename%.*}"
 
 	            action "Creating symbolic link to public key"
-	            ln -s $PENDRIVE/rsa/$pub_filename /Users/$(whoami)/.ssh;ok
+	            ln -s $KEY_DIR/rsa/$pub_filename /Users/$(whoami)/.ssh;ok
 
 	            action "Creating symbolic link to private key"
-	            ln -s $PENDRIVE/rsa/$private_filename /Users/$(whoami)/.ssh;ok
+	            ln -s $KEY_DIR/rsa/$private_filename /Users/$(whoami)/.ssh;ok
 	            
 	            action "Setting permissions"
 	            chmod 600 /Users/$(whoami)/.ssh/$pub_filename
 	            chmod 600 /Users/$(whoami)/.ssh/$private_filename;ok
 
 	            action "Loading key into ssh-agent"
-	            passphrase=$(cat "${PENDRIVE}/rsa/${private_filename}.passphrase")
+	            passphrase=$(cat "${KEY_DIR}/rsa/${private_filename}.passphrase")
 
 	            ssh-add-pass.sh "/Users/$(whoami)/.ssh/${private_filename}" $passphrase
 
@@ -170,6 +139,16 @@ else
 				else
 					error "Wrong passphrase"
 				fi
+				
+				# cat ~/.ssh/id_rsa.pub | pbcopy
+
+				# Add to Github
+				# [Github SSH keys](https://github.com/settings/ssh)
+
+				# Test connection
+				# ssh -T git@github.com
+
+				# You've successfully authenticated
 
 	            break
 	            ;;
@@ -191,11 +170,3 @@ fi
 # ssh -T git@github.com
 
 # You've successfully authenticated
-
-
-
-
-
-
-
-

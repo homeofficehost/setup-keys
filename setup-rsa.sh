@@ -135,7 +135,7 @@ else
 	            action "Loading key into ssh-agent"
 	            passphrase=$(cat "${KEY_DIR}/rsa/${private_filename}.passphrase")
 
-	            ssh-add-pass.sh "/Users/$(whoami)/.ssh/${private_filename}" $passphrase
+	            ./lib/ssh-add-pass.sh "/Users/$(whoami)/.ssh/${private_filename}" $passphrase
 
 				if [ $? -eq 0 ]; then
 					ok;

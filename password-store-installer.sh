@@ -146,12 +146,14 @@ EOF
 elif [[ $response =~ (q|Q) ]];then
 	echo "Quitting.." >&2
     exit 0
+    
 elif [[ $response =~ (d|D) ]];then
-	echo "deleting.." >&2
+	bot "are you sure to want to delete all keys?"
+	action "rm -Rf /Users/$(whoami)/.password-store"
+	read -n 1 -s -r -p "Press any key to continue"
 	rm -Rf /Users/$(whoami)/.password-store
     exit 0
 else
-
 
 	ask.provider 'Where is your password-store repo? '
 

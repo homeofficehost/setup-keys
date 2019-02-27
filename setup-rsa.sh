@@ -103,6 +103,11 @@ if [[ $response =~ (n|N) ]];then
 	Passphrase: ${OUTPUT_PASSPHRASE_FILE}\n\n \
 	Comment: ${key_comment}\n"
 
+	running "Coping public key to clipboard.."
+	cat ${OUTPUT_KEY}.pub | pbcopy;ok
+
+	bot "Please, manually add to Github SSH keys at: https://github.com/settings/ssh"
+
 elif [[ $response =~ (u|U) ]];then
 	action "Unload all keys"
 	ssh-add -D;ok
@@ -139,21 +144,20 @@ else
 
 				if [ $? -eq 0 ]; then
 					ok;
-					bot "Your ${private_filename} key has been successfully imported"
+					bot "Your private key has been successfully imported"
+
+					running "Testing git connection to Github"
+		            ssh -T git@github.com
+		            if [ $? -eq 1 ]; then
+		                ok "You've successfully authenticated to personal Github."
+		            else
+		                error "Error authing to personal Github"
+		            fi
+
 				else
-					error "Wrong passphrase"
+					error "Wrong private key passphrase"
 				fi
 				
-				# cat ~/.ssh/id_rsa.pub | pbcopy
-
-				# Add to Github
-				# [Github SSH keys](https://github.com/settings/ssh)
-
-				# Test connection
-				# ssh -T git@github.com
-
-				# You've successfully authenticated
-
 	            break
 	            ;;
 	        "Quit")

@@ -4,6 +4,9 @@
 # This script setups ssh keys on your system using symbolic links
 # @author Thomas Letsch Groch
 ###########################
+set -e
+
+cd "$(dirname $0)"/../setup-keys
 
 # include library helpers for colorized
 source ./lib/echos.sh
@@ -41,8 +44,9 @@ else
 		echo " - ${key} [$(ssh-keygen -lf $key | awk '{ print $3 }')]"
 	done
 fi
+echo ""
 
-DEFAULT_KEY_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DEFAULT_KEY_DIR="$( pwd )"
 read -r -p "Where would you like to secretly store keys? [default=${DEFAULT_KEY_DIR}]" KEY_DIR
 if [[ ! $KEY_DIR ]];then
 	KEY_DIR=$DEFAULT_KEY_DIR

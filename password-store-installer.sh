@@ -6,6 +6,9 @@
 ###########################
 
 # trap 'previous_command=$this_command; this_command=$BASH_COMMAND' DEBUG
+set -e
+
+cd "$(dirname $0)"/../setup-keys
 
 # include library helpers for colorized
 source ./lib/echos.sh

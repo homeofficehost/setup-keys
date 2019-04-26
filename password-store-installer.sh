@@ -102,27 +102,26 @@ read -r -p "(I)nitialize or (R)estore [default=R] " response
 response=${response:-Y}
 if [[ $response =~ (i|I) ]];then
 	
+	# TODO: loop testing if http_url_to_repo exist
 	ask.provider 'Where should password-store repo should be initialized? '
+	
 	warn "This remote repository should exist: ${http_url_to_repo}"
+	bot "I will create local password-store repository "
+    read -n 1 -s -r -p "Press any key, when ready, to continue"
 
-	bot "Creating local password-store repository "
-    read -n 1 -s -r -p "Press any key to continue"
-
-	action "pass init ${gpg_email}"
+	action "Running pass Initialization [pass init ${gpg_email}]"
 	pass init "${gpg_email}"
-	cd /Users/$(whoami)/.password-store
-	ok "~/.password-store created"
+	ok "${HOME}/.password-store created, thats your local password-store repository."
 
-	action "pass git init"
+	action "Initializing pass on it [pass git init]"
+	cd $HOME/.password-store
 	pass git init;ok
 
-	action "pass git remote add origin ${http_url_to_repo}"
+	action "Adding remote origin to it [pass git remote add origin ${http_url_to_repo}]"
 	pass git remote add origin $http_url_to_repo
+	ok
 
-	ok 'Local password-store repository initialized. Now let me transcrypt it.'
-
-
-	action "transcrypt -c aes-256-cbc"
+	action "encrypt it [transcrypt -c aes-256-cbc]"
 	transcrypt -c aes-256-cbc
 	cat > .gitattributes << EOF
 *.gpg filter=crypt diff=crypt
@@ -132,19 +131,22 @@ if [[ $response =~ (i|I) ]];then
 EOF
 	warn "Save your password on a safe place."
 	ok 'Local password-store repository transcrypted.'
+	
+	read -t 7 -r -p "Run an exemple of adding a password ? (y|N) [or wait 7 seconds for default=Y] " response; echo ;
+	response=${response:-Y}
 
+	if [[ $response =~ (yes|y|Y) ]];then
+		bot "Generating a example password. [pass generate Others/example.com 15]"
+		pass generate Others/example.com 15
 
-	bot "Adding example password and commit."
-	pass generate Others/example.com 15
+		bot "Now I'm going to push it to: \n${http_url_to_repo}"
 
-	bot "Now I'm going to push it to: \n${http_url_to_repo}"
-	read -n 1 -s -r -p "Press any key to continue"
+	    running "simple commit.. [git add . && git commit -m \"Initial password-store commit\" && git push -u origin master]"
+		git add . && git commit -m "Initial password-store commit" && git push -u origin master
+		ok
+	fi
 
-    action "git add . && git commit -m \"Initial password-store commit\" && git push -u origin master"
-	git add . && git commit -m "Initial password-store commit" && git push -u origin master
-	ok
-
-	bot "Password-store repository are now available on: \n${http_url_to_repo}"
+	bot "pass is now configured and Password-store repository are now ready to recive commits. \nRemote repo: \n${http_url_to_repo}"
 
 elif [[ $response =~ (q|Q) ]];then
 	echo "Quitting.." >&2
@@ -152,9 +154,9 @@ elif [[ $response =~ (q|Q) ]];then
     
 elif [[ $response =~ (d|D) ]];then
 	bot "are you sure to want to delete all keys?"
-	action "rm -Rf /Users/$(whoami)/.password-store"
+	action "rm -Rf $HOME/.password-store"
 	read -n 1 -s -r -p "Press any key to continue"
-	rm -Rf /Users/$(whoami)/.password-store
+	rm -Rf $HOME/.password-store
     exit 0
 else
 
@@ -163,12 +165,12 @@ else
 	bot "Restoring from remote repository: \n${http_url_to_repo}"
 	read -n 1 -s -r -p "Press any key to continue"
 
-	action "git clone ${http_url_to_repo} /Users/$(whoami)/.password-store"
-	git clone $http_url_to_repo /Users/$(whoami)/.password-store
+	action "git clone ${http_url_to_repo} ${HOME}/.password-store"
+	git clone $http_url_to_repo $HOME/.password-store
 	ok "Repository downloaded"
 
 	bot "Unlocking local password-store"
-	cd /Users/$(whoami)/.password-store
+	cd $HOME/.password-store
 	ask.transcrypt.password
 	action "transcrypt -c aes-256-cbc -p ${response_transcrypt}"
 	transcrypt -c aes-256-cbc -p "${response_transcrypt}"

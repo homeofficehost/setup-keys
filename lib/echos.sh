@@ -20,7 +20,7 @@ function ok() {
 }
 
 function bot() {
-    echo -e "\n$COL_GREEN\[._.]/$COL_RESET - "$1
+    echo -e "\n$COL_GREEN\[._.]/ - $1$COL_RESET"
 }
 
 function running() {
@@ -29,12 +29,14 @@ function running() {
 
 function action() {
     echo -e "\n$COL_YELLOW[action]:$COL_RESET\n ⇒ $1..."
+||||||| constructed merge base
+    echo -e "\n$COL_CYAN[action]$COL_RESET ⇒ $1..."
 }
 
 function warn() {
-    echo -e "$COL_YELLOW[warning]$COL_RESET "$1
+    echo -e "$COL_YELLOW[warning] $1$COL_RESET"
 }
 
 function error() {
-    echo -e "$COL_RED[error]$COL_RESET "$1
+    echo -e "$COL_RED[error] $1$COL_RESET"
 }

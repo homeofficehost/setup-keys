@@ -13,6 +13,16 @@ cd "$(dirname $0)"/../setup-keys
 # include library helpers for colorized
 source ./lib/echos.sh
 
+||||||| constructed merge base
+init_gitlab() {
+	json=$(gitlab create_project "$1" "{ description: '$2' }" --json)
+	http_url_to_repo=$(echo $json | jq .result.http_url_to_repo)
+	http_url_to_repo="${http_url_to_repo%\"}"
+	http_url_to_repo="${http_url_to_repo#\"}"
+
+	git remote add origin $http_url_to_repo
+}
+
 ask.transcrypt.password(){
     while [ -z "$response_transcrypt" ]; do
         read -r -p "What is your password for decrypt transcrypt? " response_transcrypt
@@ -134,6 +144,9 @@ EOF
 	
 	read -t 7 -r -p "Run an exemple of adding a password ? (y|N) [or wait 7 seconds for default=Y] " response; echo ;
 	response=${response:-Y}
+||||||| constructed merge base
+	action "Creating remote repository on gitlab"
+	init_gitlab "password-store" "personal password store host storage";ok
 
 	if [[ $response =~ (yes|y|Y) ]];then
 		bot "Generating a example password. [pass generate Others/example.com 15]"
@@ -146,7 +159,32 @@ EOF
 		ok
 	fi
 
+	action "Add the the remote git repository as 'origin'"
+	pass git remote add origin $http_url_to_repo;ok
 	bot "pass is now configured and Password-store repository are now ready to recive commits. \nRemote repo: \n${http_url_to_repo}"
+||||||| constructed merge base
+    action "Adding first commit"
+	git add . && git commit --no-verify -m "Initial password-store commit";ok
+	
+	action "Push your local Pass history"
+	pass git push -u --all;ok
+
+	action "Adding example password"
+	pass generate Others/example.com 15;ok
+	bot "Password-store setup completed. Repository are now available on: \n${http_url_to_repo}"
+
+# https://github.com/elasticdog/transcrypt
+# 	action "transcrypt -c aes-256-cbc"
+# 	transcrypt -c aes-256-cbc
+# 	cat > .gitattributes << EOF
+# *.gpg filter=crypt diff=crypt
+# *.key filter=crypt diff=crypt
+# *.properties filter=crypt diff=crypt
+# *.jks filter=crypt diff=crypt
+# EOF
+# 	warn "Save your password on a safe place."
+# 	ok 'Local password-store repository transcrypted.'
+	# read -n 1 -s -r -p "Press any key to continue"
 
 elif [[ $response =~ (q|Q) ]];then
 	echo "Quitting.." >&2

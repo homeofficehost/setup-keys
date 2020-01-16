@@ -204,12 +204,12 @@ else
 	git clone $http_url_to_repo $HOME/.password-store
 	ok "Repository downloaded"
 
-	bot "Unlocking local password-store"
-	cd $HOME/.password-store
-	ask.transcrypt.password
-	action "transcrypt -c aes-256-cbc -p ${response_transcrypt}"
-	transcrypt -c aes-256-cbc -p "${response_transcrypt}"
-	ok "store transcrypt unlocked"
+	# bot "Unlocking local password-store"
+	# cd $HOME/.password-store
+	# ask.transcrypt.password
+	# action "transcrypt -c aes-256-cbc -p ${response_transcrypt}"
+	# transcrypt -c aes-256-cbc -p "${response_transcrypt}"
+	# ok "store transcrypt unlocked"
 
 
 	bot "Done. Your store should be available."

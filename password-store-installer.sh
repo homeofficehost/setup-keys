@@ -8,12 +8,11 @@
 # trap 'previous_command=$this_command; this_command=$BASH_COMMAND' DEBUG
 set -e
 
-cd "$(dirname $0)"/../setup-keys
+cd $HOME/setup-keys
 
 # include library helpers for colorized
-source ./lib/echos.sh
+source $HOME/lib_sh/echos.sh
 
-||||||| constructed merge base
 init_gitlab() {
 	json=$(gitlab create_project "$1" "{ description: '$2' }" --json)
 	http_url_to_repo=$(echo $json | jq .result.http_url_to_repo)
@@ -144,7 +143,6 @@ EOF
 	
 	read -t 7 -r -p "Run an exemple of adding a password ? (y|N) [or wait 7 seconds for default=Y] " response; echo ;
 	response=${response:-Y}
-||||||| constructed merge base
 	action "Creating remote repository on gitlab"
 	init_gitlab "password-store" "personal password store host storage";ok
 
@@ -162,7 +160,6 @@ EOF
 	action "Add the the remote git repository as 'origin'"
 	pass git remote add origin $http_url_to_repo;ok
 	bot "pass is now configured and Password-store repository are now ready to recive commits. \nRemote repo: \n${http_url_to_repo}"
-||||||| constructed merge base
     action "Adding first commit"
 	git add . && git commit --no-verify -m "Initial password-store commit";ok
 	

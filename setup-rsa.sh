@@ -9,7 +9,7 @@ set -e
 cd "$(dirname $0)"/../setup-keys
 
 # include library helpers for colorized
-source ./lib/echos.sh
+source $HOME/lib_sh/echos.sh
 
 # Check for required installed software
 SSH_AGENT_BIN=`which ssh-agent`

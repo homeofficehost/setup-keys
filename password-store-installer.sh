@@ -80,12 +80,12 @@ ask.provider() {
 
 bot "Hi! I'm going to configure password-store on your system.\nYou supposed use gpg-suite to generate and have GPG already imported.\nHere I go..."
 
-
-if brew ls --versions pass > /dev/null; then
-	ok "pass installed."
-else
-	error "you must have pass installed"
-	exit 1
+if [[ -z $(which pass) ]]; then # if are not installed
+	if [[ -n $(which pacman) ]]; then # if are installed
+		sudo pacman -S --noconfirm pass
+	elif [[ -n $(which apt) ]]; then
+		sudo apt install -y pass
+	fi
 fi
 
 
